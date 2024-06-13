@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JLPT Project</title>
+    <script>
+        function displayResult(data) {
+            const originalText = document.getElementById('originalText');
+            const hiraganaText = document.getElementById('hiraganaText');
+            const translatedText = document.getElementById('translatedText');
+            const emotionText = document.getElementById('emotionText');
+
+            originalText.textContent = data.original_text;
+            hiraganaText.textContent = data.hiragana_text;
+            translatedText.textContent = data.translated_text;
+            emotionText.textContent = JSON.stringify(data.sentiment, null, 2);
+        }
+
+        async function uploadImage() {
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            formData.append('file', fileInput.files[0]);
+
+            const response = await fetch('/process', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            displayResult(data);
+        }
+    </script>
+</head>
+<body>
+    <h1>Upload an image</h1>
+    <form onsubmit="event.preventDefault(); uploadImage();">
+        <input type="file" id="file" name="file" required>
+        <input type="submit" value="Upload">
+    </form>
+    <h2>Results</h2>
+    <pre id="originalText"></pre>
+    <pre id="hiraganaText"></pre>
+    <pre id="translatedText"></pre>
+    <pre id="emotionText"></pre> 
+</body>
+</html>
