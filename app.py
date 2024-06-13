@@ -1,13 +1,17 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 from preprocessing.preprocess_text import preprocess
 from utils.utils import translate_text_deepl, kanji_to_hiragana
 from models.sentiment_models import analyze_emotion
 import pytesseract
 from PIL import Image
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='frontend/jlpt-frontend/build', static_url_path='/')
+CORS(app)
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe' 
+# Configure Tesseract executable path
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Change path as needed
 
 def ocr_image(image_path, lang='jpn'):
     with Image.open(image_path) as img:
@@ -15,8 +19,8 @@ def ocr_image(image_path, lang='jpn'):
     return text
 
 @app.route('/')
-def home():
-    return render_template('index.html')
+def serve_react_app():
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/process', methods=['POST'])
 def process():
