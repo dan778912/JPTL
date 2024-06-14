@@ -38,7 +38,7 @@ function App() {
         <div>
           <h2>Results</h2>
           <pre>Original Text: {result.original_text}</pre>
-          <pre>Hiragana Text: {result.hiragana_text}</pre>
+          <div dangerouslySetInnerHTML={{ __html: result.furigana_html }} />
           <pre>Translated Text: {result.translated_text}</pre>
           <pre>Sentiment: {JSON.stringify(result.sentiment, null, 2)}</pre>
         </div>

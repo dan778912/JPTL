@@ -1,13 +1,14 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from preprocessing.preprocess_text import preprocess
-from utils.utils import translate_text_deepl, kanji_to_hiragana
+from utils.utils import translate_text_deepl
 from models.sentiment_models import analyze_emotion
+from utils.furigana import print_html
 import pytesseract
 from PIL import Image
 import os
 
-app = Flask(__name__, static_folder='frontend/jlpt-frontend/build', static_url_path='/')
+app = Flask(__name__, static_folder='frontend/build')
 CORS(app)
 
 # Configure Tesseract executable path
@@ -20,6 +21,13 @@ def ocr_image(image_path, lang='jpn'):
 
 @app.route('/')
 def serve_react_app():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:path>')
+def static_proxy(path):
+    file_path = os.path.join(app.static_folder, path)
+    if os.path.exists(file_path):
+        return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/process', methods=['POST'])
@@ -36,9 +44,9 @@ def process():
     preprocessed_text = preprocess(text)
     print(f'Preprocessed Text: {preprocessed_text}')
 
-    # Convert Kanji to Hiragana
-    hiragana_text = kanji_to_hiragana(preprocessed_text)
-    print(f'Hiragana Text: {hiragana_text}')
+    # Convert Kanji to Hiragana using print_html from furigana.py
+    furigana_html = print_html(preprocessed_text)
+    print(f'Furigana HTML: {furigana_html}')
     
     # Translate text
     translated_text = translate_text_deepl(preprocessed_text)
@@ -50,7 +58,7 @@ def process():
 
     return jsonify({
         'original_text': preprocessed_text,
-        'hiragana_text': hiragana_text,
+        'furigana_html': furigana_html,
         'translated_text': translated_text,
         'sentiment': sentiment
     })
