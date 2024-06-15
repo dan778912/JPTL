@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from preprocessing.preprocess_text import preprocess
 from utils.utils import translate_text_deepl
@@ -8,7 +8,7 @@ import pytesseract
 from PIL import Image
 import os
 
-app = Flask(__name__, static_folder='frontend/build')
+app = Flask(__name__)
 CORS(app)
 
 # Configure Tesseract executable path
@@ -18,17 +18,6 @@ def ocr_image(image_path, lang='jpn'):
     with Image.open(image_path) as img:
         text = pytesseract.image_to_string(img, lang=lang)
     return text
-
-@app.route('/')
-def serve_react_app():
-    return send_from_directory(app.static_folder, 'index.html')
-
-@app.route('/<path:path>')
-def static_proxy(path):
-    file_path = os.path.join(app.static_folder, path)
-    if os.path.exists(file_path):
-        return send_from_directory(app.static_folder, path)
-    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/process', methods=['POST'])
 def process():

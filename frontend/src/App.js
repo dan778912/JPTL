@@ -3,20 +3,16 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleFileUpload = async (event) => {
+    event.preventDefault();
     const formData = new FormData();
-    formData.append('file', file);
+    const fileInput = document.getElementById('fileInput');
+    formData.append('file', fileInput.files[0]);
 
     try {
-      const response = await axios.post('/process', formData, {
+      const response = await axios.post('http://localhost:5000/process', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -30,9 +26,9 @@ function App() {
   return (
     <div className="App">
       <h1>JLPT Project</h1>
-      <form onSubmit={handleSubmit}>
-        <input type="file" onChange={handleFileChange} required />
-        <button type="submit">Upload</button>
+      <form onSubmit={handleFileUpload}>
+        <input type="file" id="fileInput" name="file" required />
+        <button type="submit">Submit</button>
       </form>
       {result && (
         <div>
